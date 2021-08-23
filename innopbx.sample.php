@@ -65,7 +65,8 @@ function do_session(array $options) {
     $v = $masterPBX->Version();
 
     foreach ($v as $name => $value)
-        print "\n  $name=$value "; print "...\n\n";
+        print "\n  $name=$value ";
+    print "...\n\n";
 
     // retrieve the full user list.  Foreach object in the PBX, one userinfo is posted, terminated by an empty one
     // You cannot assume that you will receive this list within a certain number of Poll results, so please iterate
@@ -468,23 +469,23 @@ function do_getuserpw(array $options) {
         die("pwlen must be either 16 or 24");
     }
     $crypt = new rc4crypt();
-    
+
     do_adminshow($options);
     $show = new SimpleXMLElement($showresult);
-    
+
     if (!$show->user) {
         print "User '{$options['cn']->value}' not found\n";
         return;
     }
-    
+
     // access the user part
     $user = $show->user;
-    
+
     $cn = $options['cn']->value;
 
     if (!$user['pwdx']) {
         if (!$user['pwd']) {
-        print "User '$cn' has no password\n";
+            print "User '$cn' has no password\n";
         } else {
             print "User '$cn' has only pwd attribute, not pwdx. Probably too old firmare on PBX\n";
         }
@@ -495,7 +496,7 @@ function do_getuserpw(array $options) {
     $cryptedpw = $user['pwdx'];
     print "'$cn' user password:\n";
     print "Encrypted user password: $cryptedpw\n";
-    
+
     // convert PBX user pw hex string to binary
     $cryptedpwbinary = pack('H*', $cryptedpw);
 
@@ -554,13 +555,52 @@ function do_setuserpw(array $options) {
     print "Result: " . htmlspecialchars($result) . "\n";
 }
 
-
 function do_finduser(array $options) {
     global $masterPBX;
     $r = $masterPBX->FindUser(true, true, true, true, $options['pattern']->value, null, null, 50, false, true);
     var_dump($r);
 }
 
+/**
+ * decrypt a password crypted in vars
+ * @param array $options
+ */
+function do_decryptvarpw(array $options) {
+    $rc = new rc4crypt();
+    $admin = "admin";
+    $pw = $options['devtype']->value;
+    $cmd0 = false;
+    if (!isset($options['crypted']->value))
+        die("'crypted' argument missing");
+    $crypted = $options['crypted'];
+    $cryptedpwbinary = pack('H*', $crypted->value);
+    
+    // decrypt the user password
+    $decryptedUserPW = $rc->decrypt(rc4crypt::make_key($admin, $pw), $cryptedpwbinary, false);
+    // print it (PBX stores data in UTF8)
+    // print "Decrypted user password:        '" . hexprintascii($decryptedUserPW) . "'\n";
+    // print "Decrypted user password (utf8): '" . htmlspecialchars(striptail(utf8_decode($decryptedUserPW))) . "'\n";
+    
+    print "on an $pw with standard password, '" .
+            $crypted->value .
+            "' is an encrypted '$decryptedUserPW'\n";
+}
+
+/**
+ * encrypt a password for vars
+ * @param array $options
+ */
+function do_encryptvarpw(array $options) {
+    $rc = new rc4crypt();
+    $admin = "admin";
+    $pw = $options['devtype']->value;
+    if (!isset($options['clear']->value))
+        die("'clear' argument missing");
+    $clear = $options['clear'];
+    print "on an $pw with standard password, '$clear->value' will be crypted as '" .
+            bin2hex($rc->decrypt(rc4crypt::make_key($admin, $pw), "$clear->value")) .
+            "'\n";
+}
 
 /**
  * list all available functions advertised by the target wsdl file

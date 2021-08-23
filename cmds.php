@@ -179,7 +179,7 @@ new cmd("session", "create a SOAP session to the master PBX", array(), array(
     new cmdOption("httpuser", "demo", "PBX HTTP access user name"),
     new cmdOption("httppw", "demo", "PBX HTTP access password"),
     new cmdOption("soapuser", "SOAP", "PBX User for SOAP connection"),
-    new cmdOption("version", "10", "SOAP WSDL Version"),
+    new cmdOption("version", "11", "SOAP WSDL Version"),
         )
 );
 new cmd("usersession", "create a user session on a device", array("session"), array(
@@ -236,6 +236,16 @@ new cmd("setuserpw", "Set a new password for user", array("makeuserpw"), array(
         )
 );
 new cmd("getuserpw", "Get the password of a PBX object in clear", array("getpbxkey"));
+new cmd("decryptvarpw", "Decrypt a password from VARs (only works for boxes with default admin password!)", array(), array(
+    new cmdOption("devtype", null, "password for admin account"),
+    new cmdOption("crypted", null, "crypted password (from 'vars create' line)"),
+        )
+);
+new cmd("encryptvarpw", "Encrypt a password for use in VARs (only works for boxes with default admin password!)", array(), array(
+    new cmdOption("devtype", null, "password for admin account"),
+    new cmdOption("clear", null, "clear password (for 'vars create' line)"),
+        )
+);
 new cmd("finduser", "Find matching users", array("session"), array(
     new cmdOption("pattern", "", "searched name")))
 ;

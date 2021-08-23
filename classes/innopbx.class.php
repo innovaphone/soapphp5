@@ -297,6 +297,7 @@ class innoPBX extends SoapClient {
      */
     const ___wsdl8 = 'http://www.innovaphone.com/wsdl/pbx800.wsdl';
     const ___wsdl10 = 'http://www.innovaphone.com/wsdl/pbx10_00.wsdl';
+    const ___wsdl11 = 'http://www.innovaphone.com/wsdl/pbx11_00.wsdl';
 
     /**
      * class constructor
@@ -341,6 +342,8 @@ class innoPBX extends SoapClient {
                     break;
                 case 10 : $wsdl = self::___wsdl10;
                     break;
+                case 11 : $wsdl = self::___wsdl11;
+                    break;
                 default : die("unsupported wsdl version $version");
             }
         }
@@ -364,6 +367,8 @@ class innoPBX extends SoapClient {
         $this->___usedoptions += $this->___options; // merged in class global options
         // construct parent class
         parent::__construct($wsdl, $this->___usedoptions);
+        
+        print_r($this->__getFunctions());
 
         // get the connection
         $appname = "PHP PBX SOAP Wrapper";
@@ -374,7 +379,15 @@ class innoPBX extends SoapClient {
             case 10 :
                 $init = $this->Initialize($user, $appname, true, true, true, true, true);
                 break;
+            case 11 : 
+                $t = new stdClass();
+                $t->user = $user;
+                $t->appl = $appname; 
+                $t->v = $t->v501 = $t->v700 = $t->v800 = $t->vx1000 = true;
+                $init = $this->Initialize($t);
+                break;
         }
+        var_dump($init);
         $this->___key = $init['key'];
         $this->___session = $init['return'];
         if ($this->___key == 0)
