@@ -583,7 +583,7 @@ function do_decryptvarpw(array $options) {
     
     print "on an $pw with standard password, '" .
             $crypted->value .
-            "' is an encrypted '$decryptedUserPW'\n";
+            "' is an encrypted '$decryptedUserPW' (" . bin2hex($decryptedUserPW) . ")\n";
 }
 
 /**
@@ -594,8 +594,10 @@ function do_encryptvarpw(array $options) {
     $rc = new rc4crypt();
     $admin = "admin";
     $pw = $options['devtype']->value;
-    if (!isset($options['clear']->value))
-        die("'clear' argument missing");
+    if (!isset($options['clear']->value)) {
+        // die("'clear' argument missing");
+        $options['clear']->value = "$admin,$pw";
+    } 
     $clear = $options['clear'];
     print "on an $pw with standard password, '$clear->value' will be crypted as '" .
             bin2hex($rc->decrypt(rc4crypt::make_key($admin, $pw), "$clear->value")) .

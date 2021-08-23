@@ -241,7 +241,7 @@ new cmd("decryptvarpw", "Decrypt a password from VARs (only works for boxes with
     new cmdOption("crypted", null, "crypted password (from 'vars create' line)"),
         )
 );
-new cmd("encryptvarpw", "Encrypt a password for use in VARs (only works for boxes with default admin password!)", array(), array(
+new cmd("encryptvarpw", "Encrypt a password for use in VARs (only works for boxes with default admin password!<br> To see how the admin password is encoded in CMD0/AUTH, omit the 'clear' argument)", array(), array(
     new cmdOption("devtype", null, "password for admin account"),
     new cmdOption("clear", null, "clear password (for 'vars create' line)"),
         )
