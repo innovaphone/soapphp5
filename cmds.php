@@ -179,7 +179,7 @@ new cmd("session", "create a SOAP session to the master PBX", array(), array(
     new cmdOption("httpuser", "demo", "PBX HTTP access user name"),
     new cmdOption("httppw", "demo", "PBX HTTP access password"),
     new cmdOption("soapuser", "SOAP", "PBX User for SOAP connection"),
-    new cmdOption("version", "11", "SOAP WSDL Version"),
+    new cmdOption("version", "10", "SOAP WSDL Version"),
         )
 );
 new cmd("usersession", "create a user session on a device", array("session"), array(
