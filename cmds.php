@@ -63,7 +63,7 @@ class cmd {
         self::$cmds[$this->name] = $this;
     }
 
-    public function show($verbose = false) {
+    public function show($verbose = false, $showprerequisites = true) {
         $show = "'$this->name': $this->description. $this->name(";
         $opts = array();
         foreach ($this->options as $opt) {
@@ -78,7 +78,7 @@ class cmd {
             }
         }
 
-        if ($this->requires != array()) {
+        if ($showprerequisites && $this->requires != array()) {
             $show .= "\n    requires ";
             $reqs = array();
             foreach ($this->requires as $req) {
@@ -96,7 +96,7 @@ class cmd {
         foreach ($this->requires as $predecessor) {
             self::$cmds[$predecessor]->exec();
         }
-        print "performing " . $this->show() . " ...\n\n";
+        print "performing " . $this->show(false, false) . " ...\n\n";
         $func = "do_{$this->name}";
         $func(cmdOption::$options);
         print "\n  ... done $this->name\n\n";
@@ -134,6 +134,28 @@ function hexprint($bin, $nbytes = 0) {
     for ($i = $nbytes; $i > 0; $i--)
         $r .= sprintf("%02x", ord($bin[$nbytes - $i]));
     return $r;
+}
+
+function hexprintascii($bin, $nbytes = 0) {
+    if ($nbytes == 0)
+        $nbytes = strlen($bin);
+    $r = "";
+    for ($i = $nbytes; $i > 0; $i--) {
+        $c = $bin[$nbytes - $i];
+        if ((ord($c) == ((ord($c) & 0x7F))) && ctype_print($c))
+            $r .= "$c";
+        else 
+            $r .= sprintf(ord($c) ? "\\%2x" : "\\%x", ord($c));
+        if (!ord($c)) return $r;
+    }
+    return $r;
+}
+
+function striptail($str) {
+    $in = $str;
+    $out = "";
+    foreach (str_split($in) as $c) if (!ord($c)) return $out; else $out .= $c;
+    return $out;
 }
 
 // helper function to fiddle around with query args
@@ -194,10 +216,12 @@ new cmd("delcf", "Delete call forwarding using Admin() function", array("session
     new cmdOption("cfto")
         )
 );
-new cmd("getpbxkey", "Get the PBX key", array("adminshowcfg1"));
+new cmd("getpbxkey", "Get the PBX key", array("adminshowcfg1"), array(
+    new cmdOption("pbxpw", "demo", "The PBX password"),
+        )
+);
 new cmd("makeuserpw", "Generate an encrypted PBX user password", array("getpbxkey"), array(
     new cmdOption("newpw", "pwd", "The new password"),
-    new cmdOption("pbxpw", "demo", "The PBX password"),
     new cmdOption("pwlen", 24, "length of the zero-padded user password.  Depends on PBX firmware: 16 for prior to V9hf7, 24 for newer builds")
         )
 );

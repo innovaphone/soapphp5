@@ -471,12 +471,29 @@ function do_getuserpw(array $options) {
     
     do_adminshow($options);
     $show = new SimpleXMLElement($showresult);
-
+    
+    if (!$show->user) {
+        print "User '{$options['cn']->value}' not found\n";
+        return;
+    }
+    
     // access the user part
     $user = $show->user;
+    
+    $cn = $options['cn']->value;
+
+    if (!$user['pwdx']) {
+        if (!$user['pwd']) {
+        print "User '$cn' has no password\n";
+        } else {
+            print "User '$cn' has only pwd attribute, not pwdx. Probably too old firmare on PBX\n";
+        }
+        return;
+    }
 
     // set encrypted password
     $cryptedpw = $user['pwdx'];
+    print "'$cn' user password:\n";
     print "Encrypted user password: $cryptedpw\n";
     
     // convert PBX user pw hex string to binary
@@ -485,7 +502,9 @@ function do_getuserpw(array $options) {
     // decrypt the user password
     $decryptedUserPW = $crypt->decrypt($pbxKeyDecrypted, $cryptedpwbinary, false);
     // print it (PBX stores data in UTF8)
-    print "Decrypted user password: '" . htmlspecialchars(utf8_decode($decryptedUserPW)) . "'\n";
+    print "Hex printed user password:      '" . hexprint($decryptedUserPW) . "'\n";
+    print "Decrypted user password:        '" . hexprintascii($decryptedUserPW) . "'\n";
+    print "Decrypted user password (utf8): '" . htmlspecialchars(striptail(utf8_decode($decryptedUserPW))) . "'\n";
 }
 
 /**
