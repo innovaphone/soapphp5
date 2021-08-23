@@ -554,6 +554,14 @@ function do_setuserpw(array $options) {
     print "Result: " . htmlspecialchars($result) . "\n";
 }
 
+
+function do_finduser(array $options) {
+    global $masterPBX;
+    $r = $masterPBX->FindUser(true, true, true, true, $options['pattern']->value, null, null, 50, false, true);
+    var_dump($r);
+}
+
+
 /**
  * list all available functions advertised by the target wsdl file
  * @global innoPBX $masterPBX

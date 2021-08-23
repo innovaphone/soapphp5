@@ -144,9 +144,10 @@ function hexprintascii($bin, $nbytes = 0) {
         $c = $bin[$nbytes - $i];
         if ((ord($c) == ((ord($c) & 0x7F))) && ctype_print($c))
             $r .= "$c";
-        else 
+        else
             $r .= sprintf(ord($c) ? "\\%2x" : "\\%x", ord($c));
-        if (!ord($c)) return $r;
+        if (!ord($c))
+            return $r;
     }
     return $r;
 }
@@ -154,7 +155,11 @@ function hexprintascii($bin, $nbytes = 0) {
 function striptail($str) {
     $in = $str;
     $out = "";
-    foreach (str_split($in) as $c) if (!ord($c)) return $out; else $out .= $c;
+    foreach (str_split($in) as $c)
+        if (!ord($c))
+            return $out;
+        else
+            $out .= $c;
     return $out;
 }
 
@@ -231,4 +236,7 @@ new cmd("setuserpw", "Set a new password for user", array("makeuserpw"), array(
         )
 );
 new cmd("getuserpw", "Get the password of a PBX object in clear", array("getpbxkey"));
+new cmd("finduser", "Find matching users", array("session"), array(
+    new cmdOption("pattern", "", "searched name")))
+;
 ?>
